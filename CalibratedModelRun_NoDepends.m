@@ -167,10 +167,8 @@ figure('color','w','Position',[100, 100,900, 600])
 rang = [1 3 6];
 for i=1:numel(rang)
     xOut = mean(xs{rang(i)});
-    %ax1 = subplot(2,10,i)
     ax1 = axes('position',[0.03+0.31*(i-1),0.52,0.28,0.4]);
-    %h = scatter(A(:,1),A(:,2),150,'k' );%xOut(2:4:end)
-    %h.MarkerEdgeAlpha=0.1
+
     h1 = voronoi(B(:,1),B(:,2));
     h1(1).Color = 'none';
     h1(2).Color = [0 0 0 0.2];
@@ -182,7 +180,7 @@ for i=1:numel(rang)
     dCM = makeColorMap([1,1,1], [0 0 0],1001);
     h = scatter(A(:,1),A(:,2),150*xOut(4:4:end).^2+0.000001,dCM(interp1(0:0.001:1,0:1000,xOut(4:4:end)./max(xOut(4:4:end)+0.00001),'nearest')+1,:) ,'filled');%xOut(2:4:end)
     h.MarkerFaceAlpha = 1
-% 
+%
      dCM = makeColorMap([1,1,1], liveColor,1001);
      h = scatter(A(:,1),A(:,2),150*xOut(1:4:end)+0.0001,dCM(interp1(0:0.001:1,0:1000,xOut(1:4:end)./max(xOut(1:4:end)+0.00001),'nearest')+1,:) ,'filled');%xOut(2:4:end)
      h.MarkerFaceAlpha = 0.5
@@ -190,16 +188,13 @@ for i=1:numel(rang)
     
     axis equal
     set(ax1,'xcolor','none','ycolor','none','XLim',[-7,7],'YLim',[-7,7]);
-    %an = annotation('textbox',[0.03+0.33*(i-1),0.88,0.3,0.1],'String',{['TNF=' num2str(TNF(rang(i))) 'ng/ml']},'LineStyle','none');
 end
 
 rang = [9 13 19];
 for i=1:numel(rang)
     xOut = mean(xs{rang(i)});
-    %ax1 = subplot(2,10,i)
     ax1 = axes('position',[0.03+0.31*(i-1),0.03,0.28,0.4]);
-    %h = scatter(A(:,1),A(:,2),150,'k' );%xOut(2:4:end)
-    %h.MarkerEdgeAlpha=0.1
+
     h1 = voronoi(B(:,1),B(:,2));
     h1(1).Color = 'none';
     h1(2).Color = [0 0 0 0.2];
@@ -218,7 +213,6 @@ for i=1:numel(rang)
     
     axis equal
     set(ax1,'xcolor','none','ycolor','none','XLim',[-7,7],'YLim',[-7,7]);
-    %an = annotation('textbox',[0.03+0.33*(i-1),0.88,0.3,0.1],'String',{['TNF=' num2str(TNF(rang(i))) 'ng/ml']},'LineStyle','none');
 end
 
 
@@ -347,7 +341,7 @@ LinearRange = 0.4;
 
 LinearRangeY = 1;
 
-h1= violin(cellfun(@(x) asinh(x/1), R0s,'UniformOutput', false),'x',asinh(TNF/LinearRange),'support',[-1,1000],'bw',0.05,'facecolor', [0.6 0 0.6], 'medc',[0 0 0])
+h1= violin(cellfun(@(x) asinh(x/1), R0s,'UniformOutput', false),'x',asinh(TNF/LinearRange),'support',[-1,10000],'bw',0.05,'facecolor', [0.6 0 0.6], 'medc',[0 0 0])
 
 ylabel('$R_t = \frac{P_{\textrm{getting infected by your infected neighbor}}}{P_{\textrm{your infected neighbor will die}}}$','Interpreter','latex','Fontsize', 16)
 xlabel('[TNF] (ng/ml)')
@@ -369,3 +363,226 @@ ax.YLim = asinh([-0.1, 60]/LinearRangeY)
 
 
 %thanks for reading
+
+
+% %% Run model with variable VI and VGR - This takes A LONG time
+% VGRarray = 0.01*2.^([-4:4]);%viral growth rate, See Table 1, Figure S4C-D
+% VIarray = 1.5*2.^([-4:4]); %viral infectivity, See Table 1, Figure S4C-D
+% modelResults=struct;
+% for jj=1:numel(VGRarray)
+%     VGR=VGRarray(jj);
+%     for kk=1:numel(VIarray)
+%         VI=VIarray(kk)
+%         nRuns = 200;
+%         TNF = [0 fliplr(100*(1/sqrt(2)).^[0:17])];
+%         Stats = {}
+%         xs = {}
+%         R0s = {}
+%         Dynamics = {}
+%         for j=1:numel(TNF)
+%             infDeathRate = max(interp1(cTNF,filtfilt([1,1,1],3,infDeathRatesExp),TNF(j)),0);
+%             basalDeathRate = max(interp1(cTNF,filtfilt([1,1,1],3,uninfDeathRatesExp),TNF(j)),0);
+%             pStats = cell(nRuns,1);
+%             pxs = cell(nRuns,1);
+%             Dyns = cell(nRuns,1);
+%             
+%             parfor i=1:nRuns
+%                 [pStats{i}, pxs{i} Rs{i}, Dyns{i}] = modelRunForStats_v2(nnMatrix,[],VGR,VI,basalDeathRate,infDeathRate, find(sum(A==0, 2)==2));
+%             end
+%             Stats{j} = cat(2,pStats{:})';
+%             xs{j} = cat(2,pxs{:})';
+%             R0s{j} = cat(2,Rs{:})';
+%             Dynamics{j} = cat(1,Dyns{:})';
+%         end
+%         
+%         modelResults(jj, kk).VGR=VGR;
+%         modelResults(jj, kk).VI=VI;
+%         modelResults(jj, kk).Stats=Stats;
+%         modelResults(jj, kk).xs=xs;
+%         modelResults(jj, kk).R0s=R0s;
+%         modelResults(jj, kk).Dynamics=Dynamics;
+%     end
+% end
+
+%%
+%load('/bigstore/GeneralStorage/Alon/Figures/DecisionPaper2019/paramScanModelResults.mat')
+
+%% Sweep Compare figure
+% m1s=nan(9,9);
+% minds=nan(9,9);
+% for i=1:9
+%     for j=1:9
+%     Stats  = modelResults(i,j).Stats;
+%     a = cellfun(@(x) x(:,1), Stats,'uniformOutput',false)
+%     [m1,mind]=max(median(cat(2,a{:})));
+%     m1s(i,j)=m1;
+%     minds(i,j)=mind;
+%     end
+% end
+% 
+% %%
+% VGRarray = 0.01*2.^([-4:4]);%viral growth rate, See Table 1, Figure S4C-D
+% VIarray = 1.5*2.^([-4:4]); %viral infectivity, See Table 1, Figure S4C-D
+% 
+% 
+% figure('color','w','Position',[100,100, 900, 450])
+% ax = axes('Position', [0.1, 0.14, 0.6/2, 0.6])
+% as=[]
+% for i=1:9
+%     Stats  = modelResults(5,i).Stats;
+%     a =cellfun(@(x) x(:,1), Stats,'uniformOutput',false);
+%     as = [as; 100*median(cat(2,a{:}))];
+% end
+% 
+% h = imagesc(as)
+% ylabel('Viral infectivity (h^{-1})')
+% xlabel('[TNF] (ng/ml)')
+% 
+% ax.YDir='normal'
+% %h.EdgeColor='none'
+% colormap('inferno')
+% 
+% r1 = rectangle('Position',[0.5, 4.5, 19, 1],'EdgeColor',[0 0.7 0],'LineWidth', 1.5)
+% set(gca,'XTick', [1:4:numel(TNF) 19],'XTickLabel', [round(100*TNF(1:4:end))./100, 100])
+% set(gca,'YTick', 1:2:numel(VIarray),'YTickLabel', round(100*VIarray(1:2:end))./100,'YDir', 'normal')
+% 
+% 
+% 
+% 
+% ax = axes('Position', [0.54, 0.14, 0.6/2, 0.6])
+% as=[]
+% for i=1:9
+%     Stats  = modelResults(i,5).Stats;
+%     a =cellfun(@(x) x(:,1), Stats,'uniformOutput',false);
+%     as = [as; 100*median(cat(2,a{:}))];
+% end
+% 
+% h = imagesc(as)
+% ylabel('Viral growth rate (a.u./h)')
+% xlabel('[TNF] (ng/ml)')
+% 
+% ax.YDir='normal'
+% %h.EdgeColor='none'
+% colormap('inferno')
+% 
+% r1 = rectangle('Position',[0.5, 4.5, 19, 1],'EdgeColor',[0 0.7 0],'LineWidth', 1.5)
+% set(gca,'XTick', [1:4:numel(TNF) 19],'XTickLabel', [round(100*TNF(1:4:end))./100, 100])
+% set(gca,'YTick', 1:2:numel(VGRarray),'YTickLabel', round(1000*VGRarray(1:2:end))./1000,'YDir', 'normal')
+% 
+% cb = colorbar('Position',[0.88, 0.14, 0.03, 0.6])
+% cb.Ticks=[0:25:100]
+% cb.Limits=[0, 100]
+% cb.Label.String = '% Healthy'
+% cb.Label.FontSize=14
+% cb.Label.Position(1) = 0.2
+% cb.Label.Color='w'
+% 
+% %%
+% figname = 'Fig_ModelVI_VGRSweepCompare'
+% set(gcf, 'PaperPositionMode','auto','color','w','InvertHardcopy','off','Renderer', 'painters')
+% print(gcf,'-depsc','-r600',[savpath '/epss/' figname]);
+% print(gcf,'-dpng','-r600',[savpath '/pngs/' figname]);
+
+
+
+%% Run model with variable VI - Go get some coffee and come back in a few hours/days
+VGRarray = 0.01;%viral growth rate, See Table 1, Figure S4C-D
+VIarray = 1.5*2.^([-10:10]./2); %viral infectivity, See Table 1, Figure S4C-D
+modelResults2=struct;
+for jj=1:numel(VGRarray)
+    VGR=VGRarray(jj);
+    for kk=1:numel(VIarray)
+        VI=VIarray(kk)
+        nRuns = 200;
+        TNF = [0 fliplr(100*(1/sqrt(2)).^[0:17])];
+        Stats = {}
+        xs = {}
+        R0s = {}
+        Dynamics = {}
+        for j=1:numel(TNF)
+            infDeathRate = max(interp1(cTNF,filtfilt([1,1,1],3,infDeathRatesExp),TNF(j)),0);
+            basalDeathRate = max(interp1(cTNF,filtfilt([1,1,1],3,uninfDeathRatesExp),TNF(j)),0);
+            pStats = cell(nRuns,1);
+            pxs = cell(nRuns,1);
+            Dyns = cell(nRuns,1);
+            
+            parfor i=1:nRuns
+                [pStats{i}, pxs{i} Rs{i}, Dyns{i}] = modelRunForStats_v2(nnMatrix,[],VGR,VI,basalDeathRate,infDeathRate, find(sum(A==0, 2)==2));
+            end
+            Stats{j} = cat(2,pStats{:})';
+            xs{j} = cat(2,pxs{:})';
+            R0s{j} = cat(2,Rs{:})';
+            Dynamics{j} = cat(1,Dyns{:})';
+        end
+        
+        modelResults2(jj, kk).VGR=VGR;
+        modelResults2(jj, kk).VI=VI;
+        modelResults2(jj, kk).Stats=Stats;
+        modelResults2(jj, kk).xs=xs;
+        modelResults2(jj, kk).R0s=R0s;
+        modelResults2(jj, kk).Dynamics=Dynamics;
+    end
+end
+%%
+%load('/bigstore/GeneralStorage/Alon/Figures/DecisionPaper2019/paramScanModelResults2.mat')
+
+%% Fig 4I - VI Sweep
+VGRarray = 0.01;%viral growth rate, See Table 1, Figure S4C-D
+VIarray = 1.5*2.^([-10:10]./2); %viral infectivity, See Table 1, Figure S4C-D
+
+LinearRange = 0.4
+
+figure('color','w','Position',[100,100, 900, 450])
+ax = axes('Position', [0.15, 0.14, 0.75/2, 0.75])
+as=[]
+for i=1:21
+    Stats  = modelResults2(1,i).Stats;
+    a =cellfun(@(x) x(:,1), Stats,'uniformOutput',false);
+    as = [as; 100*median(cat(2,a{:}))];
+end
+%plot(asinh(TNF/LinearRange), as,'Color', liveColor);
+
+LinearRange=0.4;
+LinearRangeY=0.1;
+
+h = imagesc(as)
+%[x, y] = meshgrid(asinh(TNF/LinearRange), asinh(VIarray/LinearRangeY));
+%z = zeros(size(y))
+%h = surface(x,y,z,255*as./100,'EdgeColor','none','FaceColor','texturemap',...
+%  'CDataMapping','direct');
+axis tight
+
+ylabel('Viral infectivity (h^{-1})')
+xlabel('[TNF] (ng/ml)')
+ax.YDir='normal'
+%h.EdgeColor='none'
+colormap('inferno')
+
+
+
+set(gca,'XTick', [1:4:numel(TNF) 19],'XTickLabel', [round(100*TNF(1:4:end))./100, 100])
+set(gca,'YTick', 1:4:numel(VIarray),'YTickLabel', round(100*VIarray(1:4:end))./100,'YDir', 'normal')
+
+
+
+r1 = rectangle('Position',[0.5, 10.5, 19, 1],'EdgeColor',[0 0.7 0],'LineWidth', 1.5)
+
+
+cb = colorbar('Position',[0.58, 0.14, 0.03, 0.75])
+
+cb.Ticks=[0:25:100]
+cb.Limits=[0, 100]
+cb.Label.String = '% Healthy'
+cb.Label.FontSize=14
+cb.Label.Position(1) = 0.2
+cb.Label.Color='w'
+
+
+a1 = annotation('arrow',[0.5450, 0.5250], [0.14+0.75/2, 0.14+0.75/2],'color',[0 0.7 0]);
+t1 = text([20.8], [9.5 ], 'measured','FontSize', 11,'EdgeColor', 'none','Rotation', 90, 'color', [0 0.7 0])
+
+%%
+figname = 'Fig_ModelVISweep'
+set(gcf, 'PaperPositionMode','auto','color','w','InvertHardcopy','off','Renderer', 'painters')
+print(gcf,'-depsc','-r600',[savpath '/epss/' figname]);
+print(gcf,'-dpng','-r600',[savpath '/pngs/' figname]);
